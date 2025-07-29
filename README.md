@@ -8,12 +8,60 @@ This repository contains the configuration files for an AWD 350 printer running 
 saboorTrident/
 ├── printer.cfg                    # Main printer configuration
 ├── H36_Combo_Config.cfg          # H36 toolhead board configuration
+├── macros/                        # Organized macro files
+│   ├── fan_control.cfg           # Fan control macros (M106)
+│   ├── led_control.cfg           # LED control macros
+│   ├── bed_leveling.cfg          # Bed leveling and calibration
+│   ├── filament_handling.cfg     # Filament management macros
+│   ├── print_control.cfg         # Print workflow macros
+│   └── testing.cfg               # Testing and calibration macros
 ├── backup_configs/                # Previous configurations
 │   ├── AWD_350_Model_TMC2240.cfg
 │   ├── AWD_350_Model_TMC2240_Kalico.cfg
 │   └── EBB_SB2209_Config.cfg
 └── README.md                      # This file
 ```
+
+## 🔧 **HARDWARE CONFIGURATION**
+
+### **Mainboard:**
+- **BTT Manta M8P V2** - Main control board
+- **CAN Bus Interface:** `can0` for toolhead communication
+- **CAN Bus UUID:** `41cbab4642d7` (main board)
+
+### **Mainboard Pin Assignments:**
+- **X-Axis Steppers:** `PE6` (STEP), `PE5` (DIR), `PC14` (EN)
+- **X1-Axis Steppers:** `PD4` (STEP), `PD3` (DIR), `PD6` (EN)
+- **Y-Axis Steppers:** `PC7` (STEP), `PC8` (DIR), `PD2` (EN)
+- **Y1-Axis Steppers:** `PE2` (STEP), `PE1` (DIR), `PE4` (EN)
+- **Z-Axis Steppers:** `PB8` (STEP), `PB7` (DIR), `PE0` (EN)
+- **Z1-Axis Steppers:** `PB4` (STEP), `PB3` (DIR), `PB6` (EN)
+- **Z2-Axis Steppers:** `PG13` (STEP), `PG12` (DIR), `PG15` (EN)
+- **Bed Heater:** `PA1` (SSR control)
+- **Bed Thermistor:** `PB1` (ATC Semitec 104GT-2)
+- **Chamber Heater:** `PA3` (HE2/SSR control)
+- **Chamber Thermistor:** `PB0` (TH0/Air temperature)
+- **Case Light:** `PA5` (HE3/PWM control)
+
+### **Toolhead Board:**
+- **FYSETC H36 Combo** - High-temperature capable toolhead board
+- **CAN Bus UUID:** Needs to be configured (see Critical Tasks)
+
+### **H36 Pin Assignments:**
+- **Extruder:** `PB9` (STEP), `PB8` (DIR), `PB7` (EN), `PC14` (UART)
+- **Heater:** `PA7` (Heat pin)
+- **Temperature Sensors:** `PA6` (NTC), `PA3` (MAX31865 RTD)
+- **Fans:** `PA5` (Hotend fan), `PB13` (Nozzle fan)
+- **RGB LED:** `PB1` (IO.4/RGB1)
+- **Filament Sensors:** `PA15` (Entry), `PC7` (Hotend)
+- **X Endstop:** `PA8` (IO.2)
+- **Cartographer V3:** Connected via CAN bus to H36 board
+
+### **Additional Hardware:**
+- **Chamber Heater:** `PA3` (HE2) with SSR control
+- **Chamber Fan:** `PA6` (FAN5) - 4-pin fan
+- **Chamber Thermistor:** `PB0` (TH0) - Air temperature monitoring
+- **Case Light:** `PA5` (HE3) - PWM-controlled case lighting
 
 ## 🚨 **CRITICAL TASKS TO COMPLETE**
 
@@ -30,20 +78,7 @@ sudo /usr/local/bin/klippy-env/bin/python /home/pi/klipper/scripts/canbus_query.
 - Replace `canbus_uuid: YOUR_H36_UUID_HERE` with your actual UUID
 - Example: `canbus_uuid: 2733cea0ce24`
 
-### 2. **Verify H36 Pin Assignments**
-**Status:** ⚠️ **REQUIRED - BLOCKING**
-
-The current `H36_Combo_Config.cfg` uses generic pin assignments. You need to:
-
-1. **Check your specific H36 board version** from the [FYSETC H36 Combo repository](https://github.com/FYSETC/H36_Combo)
-2. **Verify pin assignments match your board:**
-   - Extruder stepper pins (gpio18, gpio19, gpio17)
-   - Temperature sensor pins (gpio28, gpio9-11 for MAX31865)
-   - Fan pins (gpio14, gpio13)
-   - LED pins (gpio16)
-   - Heater pin (gpio7)
-
-### 3. **Test H36 Board Configuration**
+### 2. **Test H36 Board Configuration**
 **Status:** ⚠️ **REQUIRED - BLOCKING**
 
 Before using the main configuration:
@@ -59,6 +94,17 @@ Before using the main configuration:
    - Check for any error messages
 
 3. **Only proceed to main config after successful testing**
+
+### 3. **Chamber Heater Calibration**
+**Status:** ⚠️ **REQUIRED - NEW**
+
+The chamber heater needs PID calibration:
+
+```bash
+PID_CALIBRATE HEATER=chamber_heater TARGET=60
+```
+
+**Update `printer.cfg`** with the new PID values after calibration.
 
 ## 🔧 **CALIBRATION TASKS**
 
@@ -143,12 +189,22 @@ Current value: `pressure_advance: 0.05`
 
 1. **Test hotend fan** (starts at 50°C)
 2. **Test part cooling fan** (5015 blower)
-3. **Test RGB LEDs** on toolhead
-4. **Verify fan speeds** and PWM operation
+3. **Test chamber fan** (4-pin fan)
+4. **Test RGB LEDs** on toolhead
+5. **Test case light** control
+6. **Verify fan speeds** and PWM operation
+
+### 10. **Filament Sensor Testing**
+**Status:** ⚠️ **REQUIRED**
+
+1. **Test entry filament sensor** (PA15)
+2. **Test hotend filament sensor** (PC7)
+3. **Verify MMU compatibility** for tool changes
+4. **Test sensor response** during filament loading/unloading
 
 ## 🔍 **VERIFICATION TASKS**
 
-### 10. **Configuration Validation**
+### 11. **Configuration Validation**
 **Status:** ⚠️ **REQUIRED**
 
 1. **Run Kalico configuration check:**
@@ -159,7 +215,7 @@ Current value: `pressure_advance: 0.05`
 2. **Check for any syntax errors**
 3. **Verify all sections are properly defined**
 
-### 11. **Hardware Verification**
+### 12. **Hardware Verification**
 **Status:** ⚠️ **REQUIRED**
 
 1. **Test all stepper motors:**
@@ -177,10 +233,11 @@ Current value: `pressure_advance: 0.05`
 4. **Test all heaters:**
    - Bed heater
    - Extruder heater
+   - Chamber heater
 
 ## 📋 **OPTIONAL IMPROVEMENTS**
 
-### 12. **Advanced Features**
+### 13. **Advanced Features**
 **Status:** 🔄 **OPTIONAL**
 
 1. **Input Shaper Configuration** (if ADXL345 is installed)
@@ -188,7 +245,7 @@ Current value: `pressure_advance: 0.05`
 3. **Network Configuration** for remote access
 4. **Backup Configuration** to cloud storage
 
-### 13. **Performance Optimization**
+### 14. **Performance Optimization**
 **Status:** 🔄 **OPTIONAL**
 
 1. **Fine-tune acceleration settings**
@@ -200,14 +257,16 @@ Current value: `pressure_advance: 0.05`
 
 ### Before First Print:
 - [ ] H36 UUID configured
-- [ ] Pin assignments verified
 - [ ] H36 board tested with onekeytest.cfg
+- [ ] Chamber heater PID calibrated
 - [ ] Extruder calibrated
 - [ ] Temperature sensors calibrated
 - [ ] Pressure advance calibrated
 - [ ] Bed mesh calibrated
 - [ ] All fans tested
 - [ ] All LEDs tested
+- [ ] Case light tested
+- [ ] Filament sensors tested
 - [ ] Configuration validated with kalico-check
 - [ ] All steppers and endstops tested
 
@@ -224,6 +283,8 @@ Current value: `pressure_advance: 0.05`
 2. **Temperature Errors:** Verify sensor wiring and calibration
 3. **Stepper Issues:** Check pin assignments and current settings
 4. **Fan Problems:** Verify PWM settings and wiring
+5. **Chamber Heater:** Check SSR wiring and PID calibration
+6. **Filament Sensors:** Verify MMU compatibility and sensor response
 
 ### Getting Help:
 - Check Kalico documentation: https://docs.kalico.gg
@@ -236,9 +297,13 @@ Current value: `pressure_advance: 0.05`
 - Uses **FYSETC H36 Combo** toolhead board (high-temperature capable)
 - Supports **Cartographer V3** probe for bed leveling
 - Includes **RGB LED control** on toolhead
-- Modular configuration for easy toolhead board swapping
+- **Modular macro organization** for easy maintenance
+- **Chamber heating system** for temperature control
+- **Case lighting** for better visibility
+- **Filament sensors** for MMU compatibility
+- **Modular configuration** for easy toolhead board swapping
 
 ---
 
-**Last Updated:** Configuration created for AWD 350 printer with H36 Combo toolhead
+**Last Updated:** Configuration updated with H36 Combo toolhead, chamber heater, case light, and organized macro structure
 **Status:** ⚠️ **SETUP IN PROGRESS** - Complete all critical tasks before printing 
