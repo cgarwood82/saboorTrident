@@ -6,20 +6,25 @@ This repository contains the configuration files for an AWD 350 printer running 
 
 ```
 saboorTrident/
-├── printer.cfg                    # Main printer configuration
-├── H36_Combo_Config.cfg          # H36 toolhead board configuration
-├── macros/                        # Organized macro files
-│   ├── fan_control.cfg           # Fan control macros (M106)
-│   ├── led_control.cfg           # LED control macros
-│   ├── bed_leveling.cfg          # Bed leveling and calibration
-│   ├── filament_handling.cfg     # Filament management macros
-│   ├── print_control.cfg         # Print workflow macros
-│   └── testing.cfg               # Testing and calibration macros
-├── backup_configs/                # Previous configurations
+├── config/                        # Main configuration directory
+│   ├── printer.cfg               # Main printer configuration
+│   ├── H36_Combo_Config.cfg     # H36 toolhead board configuration
+│   ├── fluidd.cfg                # Fluidd web interface configuration
+│   ├── moonraker.conf            # Moonraker API configuration
+│   ├── crowsnest.conf            # Camera configuration
+│   ├── KlipperScreen.conf        # KlipperScreen configuration
+│   └── macros/                   # Organized macro files
+│       ├── fan_control.cfg       # Fan control macros (M106)
+│       ├── led_control.cfg       # LED control macros
+│       ├── bed_leveling.cfg      # Bed leveling and calibration
+│       ├── filament_control.cfg  # Filament management macros
+│       ├── print_control.cfg     # Print workflow macros
+│       └── testing.cfg           # Testing and calibration macros
+├── backup_configs/               # Previous configurations
 │   ├── AWD_350_Model_TMC2240.cfg
 │   ├── AWD_350_Model_TMC2240_Kalico.cfg
 │   └── EBB_SB2209_Config.cfg
-└── README.md                      # This file
+└── README.md                     # This file
 ```
 
 ## 🔧 **HARDWARE CONFIGURATION**
@@ -27,7 +32,7 @@ saboorTrident/
 ### **Mainboard:**
 - **BTT Manta M8P V2** - Main control board
 - **CAN Bus Interface:** `can0` for toolhead communication
-- **CAN Bus UUID:** `41cbab4642d7` (main board)
+- **CAN Bus UUID:** `289407b9eea8` (main board)
 
 ### **Mainboard Pin Assignments:**
 - **X-Axis Steppers:** `PE6` (STEP), `PE5` (DIR), `PC14` (EN)
@@ -45,7 +50,7 @@ saboorTrident/
 
 ### **Toolhead Board:**
 - **FYSETC H36 Combo** - High-temperature capable toolhead board
-- **CAN Bus UUID:** Needs to be configured (see Critical Tasks)
+- **CAN Bus UUID:** `2b59b330d003` (H36 board)
 
 ### **H36 Pin Assignments:**
 - **Extruder:** `PB9` (STEP), `PB8` (DIR), `PB7` (EN), `PC14` (UART)
@@ -65,50 +70,9 @@ saboorTrident/
 
 ## 🚨 **CRITICAL TASKS TO COMPLETE**
 
-### 1. **Get H36 CAN Bus UUID**
-**Status:** ⚠️ **REQUIRED - BLOCKING**
-
-You need to get the actual CAN bus UUID for your H36 board:
-
-```bash
-sudo /usr/local/bin/klippy-env/bin/python /home/pi/klipper/scripts/canbus_query.py can0
-```
-
-**Then update `H36_Combo_Config.cfg`:**
-- Replace `canbus_uuid: YOUR_H36_UUID_HERE` with your actual UUID
-- Example: `canbus_uuid: 2733cea0ce24`
-
-### 2. **Test H36 Board Configuration**
-**Status:** ⚠️ **REQUIRED - BLOCKING**
-
-Before using the main configuration:
-
-1. **Download the test config:**
-   ```bash
-   wget https://raw.githubusercontent.com/FYSETC/H36_Combo/main/H36_combo_onekeytest.cfg
-   ```
-
-2. **Test the H36 board:**
-   - Upload `H36_combo_onekeytest.cfg` to your printer
-   - Verify all components work (extruder, fans, temperature sensors, LEDs)
-   - Check for any error messages
-
-3. **Only proceed to main config after successful testing**
-
-### 3. **Chamber Heater Calibration**
-**Status:** ⚠️ **REQUIRED - NEW**
-
-The chamber heater needs PID calibration:
-
-```bash
-PID_CALIBRATE HEATER=chamber_heater TARGET=60
-```
-
-**Update `printer.cfg`** with the new PID values after calibration.
-
 ## 🔧 **CALIBRATION TASKS**
 
-### 4. **Extruder Calibration**
+### 1. **Extruder Calibration**
 **Status:** ⚠️ **REQUIRED**
 
 The current `rotation_distance: 22.6789511` is a recommended value. You need to calibrate:
@@ -127,9 +91,9 @@ The current `rotation_distance: 22.6789511` is a recommended value. You need to 
    New value = 22.6789511 × (98/100) = 22.2253
    ```
 
-3. **Update `H36_Combo_Config.cfg`** with the new value
+3. **Update `config/H36_Combo_Config.cfg`** with the new value
 
-### 5. **Temperature Sensor Calibration**
+### 2. **Temperature Sensor Calibration**
 **Status:** ⚠️ **REQUIRED**
 
 For the MAX31865 RTD sensor:
@@ -142,7 +106,7 @@ For the MAX31865 RTD sensor:
 2. **Verify temperature readings** are accurate
 3. **Check for sensor errors** in the logs
 
-### 6. **Pressure Advance Calibration**
+### 3. **Pressure Advance Calibration**
 **Status:** ⚠️ **REQUIRED**
 
 Current value: `pressure_advance: 0.05`
@@ -153,12 +117,12 @@ Current value: `pressure_advance: 0.05`
    TEST_RESONANCES AXIS=Y
    ```
 
-2. **Adjust pressure_advance** in `H36_Combo_Config.cfg`
+2. **Adjust pressure_advance** in `config/H36_Combo_Config.cfg`
 3. **Keep pressure advance below 1.0** for best results
 
 ## 🧪 **TESTING TASKS**
 
-### 7. **Bed Leveling and Mesh**
+### 3. **Bed Leveling and Mesh**
 **Status:** ⚠️ **REQUIRED**
 
 1. **Test bed mesh calibration:**
@@ -173,7 +137,7 @@ Current value: `pressure_advance: 0.05`
 
 3. **Verify probe accuracy** with Cartographer V3
 
-### 8. **Resonance Testing**
+### 4. **Resonance Testing**
 **Status:** ⚠️ **REQUIRED**
 
 1. **Install ADXL345** on the toolhead (recommended)
@@ -184,7 +148,7 @@ Current value: `pressure_advance: 0.05`
 
 3. **Apply shaper settings** to reduce vibrations
 
-### 9. **Fan and LED Testing**
+### 5. **Fan and LED Testing**
 **Status:** ⚠️ **REQUIRED**
 
 1. **Test hotend fan** (starts at 50°C)
@@ -194,7 +158,7 @@ Current value: `pressure_advance: 0.05`
 5. **Test case light** control
 6. **Verify fan speeds** and PWM operation
 
-### 10. **Filament Sensor Testing**
+### 6. **Filament Sensor Testing**
 **Status:** ⚠️ **REQUIRED**
 
 1. **Test entry filament sensor** (PA15)
@@ -204,18 +168,7 @@ Current value: `pressure_advance: 0.05`
 
 ## 🔍 **VERIFICATION TASKS**
 
-### 11. **Configuration Validation**
-**Status:** ⚠️ **REQUIRED**
-
-1. **Run Kalico configuration check:**
-   ```bash
-   kalico-check printer.cfg
-   ```
-
-2. **Check for any syntax errors**
-3. **Verify all sections are properly defined**
-
-### 12. **Hardware Verification**
+### 7. **Hardware Verification**
 **Status:** ⚠️ **REQUIRED**
 
 1. **Test all stepper motors:**
@@ -237,7 +190,7 @@ Current value: `pressure_advance: 0.05`
 
 ## 📋 **OPTIONAL IMPROVEMENTS**
 
-### 13. **Advanced Features**
+### 8. **Advanced Features**
 **Status:** 🔄 **OPTIONAL**
 
 1. **Input Shaper Configuration** (if ADXL345 is installed)
@@ -245,7 +198,7 @@ Current value: `pressure_advance: 0.05`
 3. **Network Configuration** for remote access
 4. **Backup Configuration** to cloud storage
 
-### 14. **Performance Optimization**
+### 9. **Performance Optimization**
 **Status:** 🔄 **OPTIONAL**
 
 1. **Fine-tune acceleration settings**
@@ -253,12 +206,24 @@ Current value: `pressure_advance: 0.05`
 3. **Adjust microstep settings** for your needs
 4. **Configure advanced features** (pressure advance, input shaper)
 
+## 🔧 **FINAL CALIBRATION TASKS**
+
+### 10. **Chamber Heater Calibration**
+**Status:** ⚠️ **REQUIRED - FINAL STEP**
+
+**Note:** This should be done after all panels are installed and the printer is fully assembled.
+
+The chamber heater needs PID calibration:
+
+```bash
+PID_CALIBRATE HEATER=chamber_heater TARGET=60
+```
+
+**Update `config/printer.cfg`** with the new PID values after calibration.
+
 ## 🚀 **DEPLOYMENT CHECKLIST**
 
 ### Before First Print:
-- [ ] H36 UUID configured
-- [ ] H36 board tested with onekeytest.cfg
-- [ ] Chamber heater PID calibrated
 - [ ] Extruder calibrated
 - [ ] Temperature sensors calibrated
 - [ ] Pressure advance calibrated
@@ -267,8 +232,8 @@ Current value: `pressure_advance: 0.05`
 - [ ] All LEDs tested
 - [ ] Case light tested
 - [ ] Filament sensors tested
-- [ ] Configuration validated with kalico-check
 - [ ] All steppers and endstops tested
+- [ ] Chamber heater PID calibrated (after panels installed)
 
 ### After First Print:
 - [ ] Fine-tune pressure advance
@@ -302,8 +267,9 @@ Current value: `pressure_advance: 0.05`
 - **Case lighting** for better visibility
 - **Filament sensors** for MMU compatibility
 - **Modular configuration** for easy toolhead board swapping
+- **Configuration files** organized in `config/` directory
 
 ---
 
-**Last Updated:** Configuration updated with H36 Combo toolhead, chamber heater, case light, and organized macro structure
+**Last Updated:** Configuration updated with new repository structure, correct CAN bus UUIDs, and organized config directory
 **Status:** ⚠️ **SETUP IN PROGRESS** - Complete all critical tasks before printing 
