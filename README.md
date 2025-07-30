@@ -72,128 +72,106 @@ saboorTrident/
 
 ## 🔧 **CALIBRATION TASKS**
 
-### 1. **Extruder Calibration**
-**Status:** ⚠️ **REQUIRED**
+- **Extruder Calibration**
+  - **Status:** ⚠️ **REQUIRED**
+  - The current `rotation_distance: 22.6789511` is a recommended value. You need to calibrate:
+    - Measure actual extrusion:
+      - Mark 100mm on filament
+      - Extrude 100mm
+      - Measure actual distance moved
+    - Calculate new rotation_distance:
+      ```
+      New value = old value × (actual extruded length / target length)
+      ```
+      Example: If you get 98mm instead of 100mm:
+      ```
+      New value = 22.6789511 × (98/100) = 22.2253
+      ```
+    - Update `config/H36_Combo_Config.cfg` with the new value
 
-The current `rotation_distance: 22.6789511` is a recommended value. You need to calibrate:
+- **Temperature Sensor Calibration**
+  - **Status:** ⚠️ **REQUIRED**
+  - For the MAX31865 RTD sensor:
+    - PID Calibration:
+      ```bash
+      PID_CALIBRATE HEATER=extruder TARGET=245
+      ```
+    - Verify temperature readings are accurate
+    - Check for sensor errors in the logs
 
-1. **Measure actual extrusion:**
-   - Mark 100mm on filament
-   - Extrude 100mm
-   - Measure actual distance moved
-
-2. **Calculate new rotation_distance:**
-   ```
-   New value = old value × (actual extruded length / target length)
-   ```
-   Example: If you get 98mm instead of 100mm:
-   ```
-   New value = 22.6789511 × (98/100) = 22.2253
-   ```
-
-3. **Update `config/H36_Combo_Config.cfg`** with the new value
-
-### 2. **Temperature Sensor Calibration**
-**Status:** ⚠️ **REQUIRED**
-
-For the MAX31865 RTD sensor:
-
-1. **PID Calibration:**
-   ```bash
-   PID_CALIBRATE HEATER=extruder TARGET=245
-   ```
-
-2. **Verify temperature readings** are accurate
-3. **Check for sensor errors** in the logs
-
-### 3. **Pressure Advance Calibration**
-**Status:** ⚠️ **REQUIRED**
-
-Current value: `pressure_advance: 0.05`
-
-1. **Run pressure advance test:**
-   ```bash
-   TEST_RESONANCES AXIS=X
-   TEST_RESONANCES AXIS=Y
-   ```
-
-2. **Adjust pressure_advance** in `config/H36_Combo_Config.cfg`
-3. **Keep pressure advance below 1.0** for best results
+- **Pressure Advance Calibration**
+  - **Status:** ⚠️ **REQUIRED**
+  - Current value: `pressure_advance: 0.05`
+  - Run pressure advance test:
+    ```bash
+    TEST_RESONANCES AXIS=X
+    TEST_RESONANCES AXIS=Y
+    ```
+  - Adjust pressure_advance in `config/H36_Combo_Config.cfg`
+  - Keep pressure advance below 1.0 for best results
 
 ## 🧪 **TESTING TASKS**
 
-### 3. **Bed Leveling and Mesh**
-**Status:** ⚠️ **REQUIRED**
+- **Bed Leveling and Mesh**
+  - **Status:** ⚠️ **REQUIRED**
+  - Test bed mesh calibration:
+    ```bash
+    BED_MESH_CALIBRATE
+    ```
+  - Test Z-tilt adjustment:
+    ```bash
+    Z_TILT_ADJUST
+    ```
+  - Verify probe accuracy with Cartographer V3
 
-1. **Test bed mesh calibration:**
-   ```bash
-   BED_MESH_CALIBRATE
-   ```
+- **Resonance Testing**
+  - **Status:** ⚠️ **REQUIRED**
+  - Install ADXL345 on the toolhead (recommended)
+  - Run resonance tests:
+    ```bash
+    SHAPER_CALIBRATE
+    ```
+  - Apply shaper settings to reduce vibrations
 
-2. **Test Z-tilt adjustment:**
-   ```bash
-   Z_TILT_ADJUST
-   ```
+- **Fan and LED Testing**
+  - **Status:** ⚠️ **REQUIRED**
+  - Test hotend fan (starts at 50°C)
+  - Test part cooling fan (5015 blower)
+  - Test chamber fan (4-pin fan)
+  - Test RGB LEDs on toolhead
+  - Test case light control
+  - Verify fan speeds and PWM operation
 
-3. **Verify probe accuracy** with Cartographer V3
-
-### 4. **Resonance Testing**
-**Status:** ⚠️ **REQUIRED**
-
-1. **Install ADXL345** on the toolhead (recommended)
-2. **Run resonance tests:**
-   ```bash
-   SHAPER_CALIBRATE
-   ```
-
-3. **Apply shaper settings** to reduce vibrations
-
-### 5. **Fan and LED Testing**
-**Status:** ⚠️ **REQUIRED**
-
-1. **Test hotend fan** (starts at 50°C)
-2. **Test part cooling fan** (5015 blower)
-3. **Test chamber fan** (4-pin fan)
-4. **Test RGB LEDs** on toolhead
-5. **Test case light** control
-6. **Verify fan speeds** and PWM operation
-
-### 6. **Filament Sensor Testing**
-**Status:** ⚠️ **REQUIRED**
-
-1. **Test entry filament sensor** (PA15)
-2. **Test hotend filament sensor** (PC7)
-3. **Verify MMU compatibility** for tool changes
-4. **Test sensor response** during filament loading/unloading
+- **Filament Sensor Testing**
+  - **Status:** ⚠️ **REQUIRED**
+  - Test entry filament sensor (PA15)
+  - Test hotend filament sensor (PC7)
+  - Verify MMU compatibility for tool changes
+  - Test sensor response during filament loading/unloading
 
 ## 🔍 **VERIFICATION TASKS**
 
-### 7. **Hardware Verification**
-**Status:** ⚠️ **REQUIRED**
-
-1. **Test all stepper motors:**
-   - X, X1, Y, Y1, Z, Z1, Z2 axes
-   - Extruder motor
-
-2. **Test all endstops:**
-   - X, Y, Z limit switches
-
-3. **Test all temperature sensors:**
-   - Bed thermistor
-   - Chamber thermistor
-   - Extruder RTD sensor
-
-4. **Test all heaters:**
-   - Bed heater
-   - Extruder heater
-   - Chamber heater
+- **Hardware Verification**
+  - **Status:** ⚠️ **REQUIRED**
+  - Test all stepper motors:
+    - X, X1, Y, Y1, Z, Z1, Z2 axes
+    - Extruder motor
+  - Test all endstops:
+    - X, Y, Z limit switches
+  - Test all temperature sensors:
+    - Bed thermistor
+    - Chamber thermistor
+    - Extruder RTD sensor
+  - Test all heaters:
+    - Bed heater
+    - Extruder heater
+    - Chamber heater
 
 ## 📋 **OPTIONAL IMPROVEMENTS**
 
-### 8. **Advanced Features**
-**Status:** 🔄 **OPTIONAL**
-
-1. **Input Shaper Configuration** (if ADXL345 is installed)
+- **Advanced Features**
+  - **Status:** 🔄 **OPTIONAL**
+  - Input Shaper Configuration (if ADXL345 is installed)
 2. **Custom G-code Macros** for your workflow
 3. **Network Configuration** for remote access
 4. **Backup Configuration** to cloud storage
@@ -272,4 +250,4 @@ PID_CALIBRATE HEATER=chamber_heater TARGET=60
 ---
 
 **Last Updated:** Configuration updated with new repository structure, correct CAN bus UUIDs, and organized config directory
-**Status:** ⚠️ **SETUP IN PROGRESS** - Complete all critical tasks before printing 
+**Status:** ⚠️ **SETUP IN PROGRESS** - Complete all critical tasks before printing
