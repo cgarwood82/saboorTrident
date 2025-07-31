@@ -73,7 +73,7 @@ saboorTrident/
 ## 🔧 **CALIBRATION TASKS**
 
 - **Extruder Calibration**
-  - **Status:** ⚠️ **REQUIRED**
+  - **Status:** **Complete**
   - The current `rotation_distance: 22.6789511` is a recommended value. You need to calibrate:
     - Measure actual extrusion:
       - Mark 100mm on filament
@@ -90,51 +90,19 @@ saboorTrident/
     - Update `config/H36_Combo_Config.cfg` with the new value
 
 - **Temperature Sensor Calibration**
-  - **Status:** ⚠️ **REQUIRED**
-  - For the MAX31865 RTD sensor:
-    - PID Calibration:
-      ```bash
-      PID_CALIBRATE HEATER=extruder TARGET=245
-      ```
-    - Verify temperature readings are accurate
-    - Check for sensor errors in the logs
-
-- **Pressure Advance Calibration**
-  - **Status:** ⚠️ **REQUIRED**
-  - Current value: `pressure_advance: 0.05`
-  - Run pressure advance test:
-    ```bash
-    TEST_RESONANCES AXIS=X
-    TEST_RESONANCES AXIS=Y
-    ```
-  - Adjust pressure_advance in `config/H36_Combo_Config.cfg`
-  - Keep pressure advance below 1.0 for best results
+  - **Status:**  **Complete**
 
 ## 🧪 **TESTING TASKS**
 
 - **Bed Leveling and Mesh**
-  - **Status:** ⚠️ **REQUIRED**
-  - Test bed mesh calibration:
-    ```bash
-    BED_MESH_CALIBRATE
-    ```
-  - Test Z-tilt adjustment:
-    ```bash
-    Z_TILT_ADJUST
-    ```
-  - Verify probe accuracy with Cartographer V3
+  - **Status:** **Complete**
 
 - **Resonance Testing**
-  - **Status:** ⚠️ **REQUIRED**
+  - **Status:** **Complete**
   - Install ADXL345 on the toolhead (recommended)
-  - Run resonance tests:
-    ```bash
-    SHAPER_CALIBRATE
-    ```
-  - Apply shaper settings to reduce vibrations
 
 - **Fan and LED Testing**
-  - **Status:** ⚠️ **REQUIRED**
+  - **Status:** **Complete**
   - Test hotend fan (starts at 50°C)
   - Test part cooling fan (5015 blower)
   - Test chamber fan (4-pin fan)
@@ -143,7 +111,7 @@ saboorTrident/
   - Verify fan speeds and PWM operation
 
 - **Filament Sensor Testing**
-  - **Status:** ⚠️ **REQUIRED**
+  - **Status:** **Complete**
   - Test entry filament sensor (PA15)
   - Test hotend filament sensor (PC7)
   - Verify MMU compatibility for tool changes
@@ -152,7 +120,7 @@ saboorTrident/
 ## 🔍 **VERIFICATION TASKS**
 
 - **Hardware Verification**
-  - **Status:** ⚠️ **REQUIRED**
+  - **Status:** **Complete**
   - Test all stepper motors:
     - X, X1, Y, Y1, Z, Z1, Z2 axes
     - Extruder motor
@@ -201,38 +169,11 @@ PID_CALIBRATE HEATER=chamber_heater TARGET=60
 
 ## 🚀 **DEPLOYMENT CHECKLIST**
 
-### Before First Print:
-- [ ] Extruder calibrated
-- [ ] Temperature sensors calibrated
-- [ ] Pressure advance calibrated
-- [ ] Bed mesh calibrated
-- [ ] All fans tested
-- [ ] All LEDs tested
-- [ ] Case light tested
-- [ ] Filament sensors tested
-- [ ] All steppers and endstops tested
-- [ ] Chamber heater PID calibrated (after panels installed)
-
 ### After First Print:
 - [ ] Fine-tune pressure advance
 - [ ] Adjust acceleration/jerk if needed
 - [ ] Configure input shaper (if ADXL345 available)
 - [ ] Create custom macros for your workflow
-
-## 📞 **TROUBLESHOOTING**
-
-### Common Issues:
-1. **CAN Bus Connection:** Check UUID and physical connections
-2. **Temperature Errors:** Verify sensor wiring and calibration
-3. **Stepper Issues:** Check pin assignments and current settings
-4. **Fan Problems:** Verify PWM settings and wiring
-5. **Chamber Heater:** Check SSR wiring and PID calibration
-6. **Filament Sensors:** Verify MMU compatibility and sensor response
-
-### Getting Help:
-- Check Kalico documentation: https://docs.kalico.gg
-- Review H36 Combo documentation: https://github.com/FYSETC/H36_Combo
-- Check printer logs for error messages
 
 ## 📝 **NOTES**
 
@@ -246,8 +187,3 @@ PID_CALIBRATE HEATER=chamber_heater TARGET=60
 - **Filament sensors** for MMU compatibility
 - **Modular configuration** for easy toolhead board swapping
 - **Configuration files** organized in `config/` directory
-
----
-
-**Last Updated:** Configuration updated with new repository structure, correct CAN bus UUIDs, and organized config directory
-**Status:** ⚠️ **SETUP IN PROGRESS** - Complete all critical tasks before printing
