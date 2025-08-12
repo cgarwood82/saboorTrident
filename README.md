@@ -2,6 +2,9 @@
 
 This repository contains the configuration files for an AWD 350 printer running Kalico firmware with a BTT Manta M8P V2 mainboard and FYSETC H36 Combo toolhead board.
 
+## Slicer Config
+Added an orca config with moment in time profiles for filaments that I've calibrated against
+
 ## 🔧 **HARDWARE CONFIGURATION**
 
 ### **Mainboard:**
